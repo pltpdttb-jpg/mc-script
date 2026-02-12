@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ttb reserve : Interactive Script</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --ttb-blue: #002d63;
+            --ttb-red: #ee3124;
+            --ttb-orange: #f68b1f;
+        }
+        
+        body {
+            font-family: 'Kanit', sans-serif;
+            background-color: #0f172a; /* Dark Slate Background */
+            color: #e2e8f0;
+            padding-bottom: 350px; /* Extra padding for Note Panel */
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* --- Dynamic Script Logic --- */
+        
+        /* Transition Effects */
+        .script-card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* MODE: MALE FOCUS */
+        body[data-mode="male"] .script-card[data-role="male"] {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            color: #0f172a;
+            transform: scale(1.02);
+            border-left: 8px solid #0056b3;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            opacity: 1;
+            z-index: 10;
+        }
+        
+        body[data-mode="male"] .script-card[data-role="male"] .script-text {
+            font-size: 1.35rem; /* Large font for easy reading */
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        body[data-mode="male"] .script-card[data-role="female"] {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px dashed #64748b;
+            color: #cbd5e1;
+            opacity: 0.75;
+            transform: scale(0.96);
+        }
+
+        /* MODE: FEMALE FOCUS */
+        body[data-mode="female"] .script-card[data-role="female"] {
+            background: linear-gradient(145deg, #ffffff, #f8fafc);
+            color: #0f172a;
+            transform: scale(1.02);
+            border-left: 8px solid #ec4899; /* Pink/Magenta for distinction */
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+            opacity: 1;
+            z-index: 10;
+        }
+
+        body[data-mode="female"] .script-card[data-role="female"] .script-text {
+            font-size: 1.35rem;
+            font-weight: 500;
+            line-height: 1.6;
+        }
+
+        body[data-mode="female"] .script-card[data-role="male"] {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px dashed #64748b;
+            color: #cbd5e1;
+            opacity: 0.75;
+            transform: scale(0.96);
+        }
+
+        /* BOTH SPEAKING */
+        .script-card[data-role="both"] {
+            background: linear-gradient(90deg, #1e293b, #0f172a);
+            border: 2px solid #fbbf24;
+            color: #fbbf24;
+            text-align: center;
+        }
+
+        /* Stage Direction */
+        .stage-dir {
+            color: #f59e0b; /* Amber 500 */
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin: 1.5rem 0 0.5rem 0;
+            padding-left: 0.5rem;
+            border-left: 2px solid #f59e0b;
+        }
+
+        /* Toggle Switch */
+        .toggle-btn {
+            transition: all 0.3s ease;
+        }
+        .toggle-btn.active {
+            background-color: white;
+            color: #0f172a;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .toggle-btn:not(.active) {
+            color: #94a3b8;
+        }
+
+        /* --- Notepad Styles --- */
+        #note-panel {
+            transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transform: translateY(100%);
+            z-index: 100;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+        }
+        #note-panel.open {
+            transform: translateY(0);
+        }
+        canvas {
+            touch-action: none; /* Prevent scrolling while drawing */
+            cursor: crosshair;
+        }
+
+    </style>
+</head>
+<body data-mode="male" class="antialiased overflow-x-hidden">
+
+    <!-- Sticky Header Control -->
+    <header class="fixed top-0 left-0 right-0 z-50 bg-[#0f172a]/90 backdrop-blur-md border-b border-slate-700 shadow-2xl pb-3 pt-4 px-4">
+        <div class="max-w-3xl mx-auto flex justify-between items-center">
+            <div class="leading-tight flex items-center gap-3">
+                <div>
+                    <h1 class="text-white font-bold text-lg">ttb reserve</h1>
+                    <p class="text-slate-400 text-xs uppercase tracking-wider">Master Script</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- Role Switcher -->
+                <div class="bg-slate-800 p-1 rounded-full flex gap-1 border border-slate-600">
+                    <button onclick="setMode('male')" id="btn-male" class="toggle-btn active flex items-center gap-2 px-3 py-1.5 rounded-full font-bold text-sm">
+                        <span class="text-lg">👨‍💼</span> <span class="hidden sm:inline">ชาย</span>
+                    </button>
+                    <button onclick="setMode('female')" id="btn-female" class="toggle-btn flex items-center gap-2 px-3 py-1.5 rounded-full font-bold text-sm">
+                        <span class="text-lg">👩‍💼</span> <span class="hidden sm:inline">หญิง</span>
+                    </button>
+                </div>
+
+                <!-- Note Button -->
+                <button onclick="toggleNotePanel()" id="btn-note" class="bg-slate-700 hover:bg-slate-600 text-white p-2 rounded-full border border-slate-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Content Area -->
+    <main class="max-w-3xl mx-auto px-4 pt-28 space-y-4 pb-32">
+
+        <!-- PRE-OPEN -->
+        <div class="stage-dir">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3" /></svg>
+            ดนตรี Background / ลูกค้านั่งประจำที่
+        </div>
+
+        <div class="script-card p-6" data-role="male">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70 flex justify-between">
+                <span>MC ชาย</span>
+                <span class="text-blue-500">⚫ LIVE</span>
+            </div>
+            <div class="script-text">
+                เรียนเชิญทุกท่านเข้าประจำที่นะครับ<br>
+                งานสัมมนาจะเริ่มในอีกสักครู่ครับ
+            </div>
+        </div>
+
+        <hr class="border-slate-800 my-8">
+
+        <!-- OPENING -->
+        <div class="text-center py-2 bg-gradient-to-r from-transparent via-blue-900/30 to-transparent rounded-lg border border-blue-900/50 mb-4">
+            <h2 class="text-blue-300 font-bold tracking-widest text-sm">🚀 OPENING SESSION</h2>
+        </div>
+
+        <div class="script-card p-6" data-role="male">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC ชาย</div>
+            <div class="script-text">
+                ในโลกการลงทุนวันนี้ <strong>ความไม่แน่นอน</strong> กลายเป็นเรื่องปกติใหม่ของเศรษฐกิจโลก ทั้งความผันผวนของตลาด อัตราดอกเบี้ย เงินเฟ้อ และการเปลี่ยนแปลงของโครงสร้างเศรษฐกิจ
+                <br><br>
+                แต่ในทุกความไม่แน่นอน ย่อมมี <strong>"โอกาส"</strong> สำหรับผู้ที่มีข้อมูลและการวางแผนที่เหมาะสมครับ
+            </div>
+        </div>
+
+        <div class="script-card p-6" data-role="female">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC หญิง</div>
+            <div class="script-text">
+                และวันนี้ ธนาคาร ttb ได้คัดสรรมุมมองการลงทุนระดับผู้เชี่ยวชาญ เพื่อช่วยให้ทุกท่านมองเห็นทิศทางการลงทุนอย่างมั่นใจ พร้อมโอกาสในการบริหารความมั่งคั่งอย่างยั่งยืนค่ะ
+            </div>
+        </div>
+
+        <div class="stage-dir">⭐ แนะนำตัวพิธีกร</div>
+
+        <div class="script-card p-6" data-role="male">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC ชาย</div>
+            <div class="script-text">
+                สวัสดีครับท่านผู้มีเกียรติทุกท่าน<br>
+                ผม <strong>ญานภัทร จารุวงศ์ไพบูลย์</strong><br>
+                <span class="text-sm font-normal opacity-80">(Training Specialist — Partnership Distribution)</span> ครับ
+            </div>
+        </div>
+
+        <div class="script-card p-6" data-role="female">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC หญิง</div>
+            <div class="script-text">
+                และดิฉัน <strong>อนัญญา จันทรมาน</strong><br>
+                <span class="text-sm font-normal opacity-80">(Training Specialist — Partnership Distribution)</span> ค่ะ
+                <br><br>
+                และเราทั้งสองคนรู้สึกเป็นเกียรติอย่างยิ่งที่ได้ต้อนรับทุกท่านในวันนี้ค่ะ
+            </div>
+        </div>
+
+        <div class="stage-dir">⭐ กล่าวต้อนรับ (Official Welcome)</div>
+
+        <div class="script-card p-6" data-role="male">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC ชาย</div>
+            <div class="script-text">
+                ขอต้อนรับทุกท่านเข้าสู่งานสัมมนาสุดพิเศษจาก<br>
+                ธนาคารทหารไทยธนชาต จำกัด (มหาชน)<br>
+                ที่จัดขึ้นเป็นเอกสิทธิ์เฉพาะสำหรับลูกค้า <strong class="text-orange-600">ttb reserve</strong>
+            </div>
+        </div>
+
+        <div class="script-card p-6" data-role="female">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC หญิง</div>
+            <div class="script-text">
+                งาน <strong>“Innovative Investment Solutions for Uncertain Climate”</strong><br>
+                ซึ่งจัดขึ้นเพื่อแบ่งปันมุมมองเศรษฐกิจ แนวโน้มการลงทุน และโอกาสในการบริหารความมั่งคั่งในสภาวะตลาดที่มีความไม่แน่นอนค่ะ
+            </div>
+        </div>
+
+        <!-- EXEC SPEECH -->
+        <hr class="border-slate-800 my-8">
+        
+        <div class="bg-slate-800/40 border border-slate-700 p-4 rounded-xl">
+            <div class="stage-dir !mt-0 !border-0">👤 เชิญผู้บริหารกล่าวเปิดงาน</div>
+            
+            <div class="script-card p-6" data-role="male">
+                <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC ชาย</div>
+                <div class="script-text">
+                    เพื่อเป็นเกียรติและกล่าวต้อนรับทุกท่านอย่างเป็นทางการ ขอเรียนเชิญ
+                    <div class="my-3 p-3 bg-blue-50/10 border-l-4 border-blue-400 rounded-r">
+                        <strong>คุณทิพย์วรรณ แซ่ปัง</strong><br>
+                        <span class="text-sm opacity-75">เจ้าหน้าที่บริหารภาคธุรกิจสาขา (ภาค 5)</span>
+                    </div>
+                    ขึ้นกล่าวต้อนรับและเปิดงานในวันนี้ครับ
+                </div>
+            </div>
+
+            <div class="text-center py-4 text-slate-500 italic text-sm">
+                (ผู้บริหารกล่าวเปิดงาน)
+            </div>
+
+            <div class="script-card p-6" data-role="female">
+                <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC หญิง</div>
+                <div class="script-text">
+                    ขอขอบพระคุณคุณทิพย์วรรณ แซ่ปัง เป็นอย่างสูงค่ะ
+                </div>
+            </div>
+        </div>
+
+        <!-- SESSION 1 -->
+        <div class="text-center py-2 bg-gradient-to-r from-transparent via-blue-800/20 to-transparent mt-8 mb-4">
+            <h2 class="text-blue-300 font-bold tracking-widest text-sm">📊 SESSION 1 : Investment Outlook</h2>
+        </div>
+
+        <div class="script-card p-6" data-role="male">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC ชาย</div>
+            <div class="script-text">
+                หลังจากนี้เข้าสู่ session แรกของเรา หัวข้อ <strong>Investment Outlook 2026</strong>
+                <br><br>
+                ใน session นี้ทุกท่านจะได้พบกับมุมมองภาพรวมเศรษฐกิจโลก สถานการณ์การลงทุนในปัจจุบัน รวมถึงประเด็นสำคัญที่นักลงทุนควรติดตามอย่างใกล้ชิดครับ
+            </div>
+        </div>
+
+        <div class="script-card p-6" data-role="female">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC หญิง</div>
+            <div class="script-text">
+                วิทยากรผู้ทรงคุณวุฒิที่จะมาแบ่งปันข้อมูลเชิงลึกในวันนี้คือ
+                <div class="my-2 text-blue-300 font-semibold">คุณศรายุทธ แก้วเกษ (Head of Wealth Solution Expert, ttb)</div>
+                ขอเรียนเชิญค่ะ
+            </div>
+        </div>
+
+        <div class="text-center py-4 text-slate-500 italic text-sm border-2 border-dashed border-slate-700 rounded-lg my-2">
+            (Presentation - คุณศรายุทธ)
+        </div>
+
+        <div class="script-card p-6" data-role="male">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC ชาย</div>
+            <div class="script-text">
+                ขอขอบพระคุณคุณศรายุทธสำหรับข้อมูลและมุมมองที่เป็นประโยชน์อย่างยิ่งครับ
+                <br><br>
+                ทำให้เราเห็นภาพชัดเจนเลยว่า <strong>แม้ปี 2026 จะมีความท้าทาย แต่ถ้าเรารู้ทันจังหวะและทิศทางลม โอกาสก็ยังเป็นของผู้ที่เตรียมพร้อมเสมอครับ</strong>
+            </div>
+        </div>
+
+        <!-- SESSION 2 -->
+        <div class="text-center py-2 bg-gradient-to-r from-transparent via-orange-800/20 to-transparent mt-8 mb-4">
+            <h2 class="text-orange-300 font-bold tracking-widest text-sm">🌍 SESSION 2 : Innovative Solutions</h2>
+        </div>
+
+        <div class="script-card p-6" data-role="female">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC หญิง</div>
+            <div class="script-text">
+                จริงค่ะ และเมื่อเราเห็นภาพใหญ่กันแล้ว คำถามสำคัญคือ <strong>เราจะมีเครื่องมืออะไรบ้างที่จะช่วยให้การลงทุนของเราฝ่าคลื่นลมเหล่านี้ไปได้อย่างราบรื่น</strong>
+                <br><br>
+                ต่อไปเราจะพาทุกท่านไปสู่แนวทางการบริหารพอร์ตลงทุน และโซลูชันการลงทุนที่เหมาะสมในสภาวะตลาดที่มีความผันผวนค่ะ
+            </div>
+        </div>
+
+        <div class="script-card p-6" data-role="male">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC ชาย</div>
+            <div class="script-text">
+                กับหัวข้อ <strong>Innovative Investment Solutions for Uncertain Climate</strong>
+                <br><br>
+                ที่จะช่วยให้ทุกท่านเห็นแนวทางการจัดพอร์ตและโอกาสการลงทุนในยุคใหม่ครับ
+            </div>
+        </div>
+
+        <div class="script-card p-6" data-role="female">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC หญิง</div>
+            <div class="script-text">
+                ขอเรียนเชิญ
+                <div class="my-2 text-orange-300 font-semibold">คุณชวมนต์ วินิจตรงจิตร (Deputy Chief Head of Private Banking Business, ttb)</div>
+                ค่ะ
+            </div>
+        </div>
+
+        <div class="text-center py-4 text-slate-500 italic text-sm border-2 border-dashed border-slate-700 rounded-lg my-2">
+            (Presentation - คุณชวมนต์)
+        </div>
+
+        <div class="script-card p-6" data-role="male">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC ชาย</div>
+            <div class="script-text">
+                ขอขอบพระคุณคุณชวมนต์ครับ ฟังแล้วมั่นใจขึ้นเยอะเลยนะครับว่า <strong>ไม่ว่าโลกจะเปลี่ยนไปทางไหน ttb reserve ก็มีโซลูชันที่พร้อมดูแลความมั่งคั่งของทุกท่านได้อย่างแท้จริงครับ</strong>
+            </div>
+        </div>
+
+        <!-- Q&A -->
+        <div class="stage-dir">❓ Q&A SESSION</div>
+
+        <div class="script-card p-6" data-role="female">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC หญิง</div>
+            <div class="script-text">
+                ใช่แล้วค่ะ แต่นอกเหนือจากความน่าสนใจแล้ว บางท่านอาจจะมีคำถามหรือข้อสงสัยที่อยากจะถามเพิ่มเติมนะคะ
+                <br><br>
+                ต่อไปเป็นช่วงถาม–ตอบค่ะ หากท่านมีคำถามสามารถยกมือได้เลยค่ะ วิทยากรทั้งสองท่านยังคงอยู่พร้อมที่จะตอบคำถามให้กับทุกท่านค่ะ
+            </div>
+        </div>
+
+        <!-- Private Consult -->
+        <div class="stage-dir">🤝 PRIVATE CONSULTATION</div>
+
+        <div class="script-card p-6" data-role="female">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC หญิง</div>
+            <div class="script-text">
+                หลายท่านอาจจะมีคำถามแต่ว่าอาจจะไม่สะดวกที่จะยกมือถามนะคะ จากนี้เป็นช่วง Private Consultation สำหรับท่านที่ต้องการรับคำแนะนำด้านการลงทุนแบบส่วนตัวค่ะ
+            </div>
+        </div>
+
+        <div class="script-card p-6" data-role="male">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC ชาย</div>
+            <div class="script-text">
+                จะมีเจ้าหน้าที่ที่ดูแลแต่ละท่าน เข้าไปให้คำแนะนำแบบส่วนตัวเลยนะครับ
+                <br><br>
+                และวิทยากรทั้งสองท่านยังคงอยู่ในงาน หากท่านใดต้องการสอบถามหรือขอคำแนะนำกับวิทยากรเพิ่มเติม สามารถแจ้งกับเจ้าหน้าที่ที่ดูแลท่านได้เลยครับ
+            </div>
+        </div>
+
+        <!-- CLOSING -->
+        <hr class="border-slate-800 my-8">
+        <div class="text-center py-2 bg-slate-800 rounded mb-4">
+            <h2 class="text-slate-400 font-bold tracking-widest text-sm">🎯 CLOSING SESSION</h2>
+        </div>
+
+        <div class="script-card p-6" data-role="male">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC ชาย</div>
+            <div class="script-text">
+                ในนามของธนาคารทหารไทยธนชาต จำกัด (มหาชน) ขอขอบพระคุณทุกท่านที่ให้เกียรติเข้าร่วมงานในวันนี้ครับ
+            </div>
+        </div>
+
+        <div class="script-card p-6" data-role="female">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-70">MC หญิง</div>
+            <div class="script-text">
+                หวังเป็นอย่างยิ่งว่ามุมมองและข้อมูลที่ทุกท่านได้รับในวันนี้ จะเป็นประโยชน์ต่อการวางแผนการลงทุน และการบริหารความมั่งคั่งของทุกท่านค่ะ
+            </div>
+        </div>
+
+        <div class="script-card p-6" data-role="both">
+            <div class="text-xs font-bold uppercase tracking-wider mb-2 opacity-90">คู่ (พร้อมกัน)</div>
+            <div class="script-text text-xl">
+                ขอให้ทุกท่านมีความสุขกับช่วง Private Consultation<br>
+                และขอขอบพระคุณครับ / ค่ะ
+            </div>
+        </div>
+    </main>
+
+    <!-- NOTEPAD DRAWER -->
+    <div id="note-panel" class="fixed bottom-0 left-0 right-0 bg-slate-900 border-t border-slate-700 h-[320px] shadow-2xl flex flex-col">
+        <!-- Toolbar -->
+        <div class="flex justify-between items-center p-2 bg-slate-800 border-b border-slate-700">
+            <div class="flex gap-2">
+                <button onclick="clearCanvas()" class="px-3 py-1 bg-red-900/50 text-red-300 rounded text-xs hover:bg-red-800/50">ลบทั้งหมด</button>
+                <div class="h-6 w-px bg-slate-600 mx-1"></div>
+                <button onclick="setPenColor('#ffffff')" class="w-6 h-6 rounded-full bg-white border-2 border-slate-500"></button>
+                <button onclick="setPenColor('#facc15')" class="w-6 h-6 rounded-full bg-yellow-400 border-2 border-slate-500"></button>
+                <button onclick="setPenColor('#f87171')" class="w-6 h-6 rounded-full bg-red-400 border-2 border-slate-500"></button>
+            </div>
+            
+            <div class="text-xs text-slate-400 font-bold tracking-widest">SCRATCHPAD</div>
+
+            <button onclick="toggleNotePanel()" class="p-1 text-slate-400 hover:text-white">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Canvas Area -->
+        <div class="relative flex-1 bg-[#1e293b] cursor-crosshair overflow-hidden">
+            <canvas id="note-canvas" class="absolute top-0 left-0 w-full h-full block"></canvas>
+            
+            <!-- Optional Text Area (toggleable if needed, currently hidden to focus on pen) -->
+            <!-- <textarea class="absolute top-0 left-0 w-full h-full bg-transparent p-4 text-white resize-none focus:outline-none z-0" placeholder="Type or scribble here..."></textarea> -->
+        </div>
+    </div>
+
+    <script>
+        // --- Mode Toggle ---
+        function setMode(mode) {
+            document.body.setAttribute('data-mode', mode);
+            const maleBtn = document.getElementById('btn-male');
+            const femaleBtn = document.getElementById('btn-female');
+
+            if (mode === 'male') {
+                maleBtn.classList.add('active');
+                femaleBtn.classList.remove('active');
+            } else {
+                maleBtn.classList.remove('active');
+                femaleBtn.classList.add('active');
+            }
+        }
+
+        // --- Note Panel Toggle ---
+        const notePanel = document.getElementById('note-panel');
+        const noteBtn = document.getElementById('btn-note');
+
+        function toggleNotePanel() {
+            notePanel.classList.toggle('open');
+            // Change button style when active
+            if(notePanel.classList.contains('open')) {
+                noteBtn.classList.add('bg-blue-600', 'border-blue-400');
+                noteBtn.classList.remove('bg-slate-700', 'border-slate-500');
+                resizeCanvas(); // Resize when opened
+            } else {
+                noteBtn.classList.remove('bg-blue-600', 'border-blue-400');
+                noteBtn.classList.add('bg-slate-700', 'border-slate-500');
+            }
+        }
+
+        // --- Canvas Logic ---
+        const canvas = document.getElementById('note-canvas');
+        const ctx = canvas.getContext('2d');
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let penColor = '#ffffff';
+
+        function resizeCanvas() {
+            // Match canvas internal resolution to display size
+            const rect = canvas.parentElement.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = rect.height;
+            
+            // Restore context settings after resize
+            ctx.strokeStyle = penColor;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+            ctx.lineWidth = 3;
+        }
+
+        function setPenColor(color) {
+            penColor = color;
+            ctx.strokeStyle = color;
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function startDrawing(e) {
+            isDrawing = true;
+            const pos = getPos(e);
+            lastX = pos.x;
+            lastY = pos.y;
+        }
+
+        function draw(e) {
+            if (!isDrawing) return;
+            e.preventDefault(); // Stop scrolling when drawing
+            
+            const pos = getPos(e);
+            ctx.beginPath();
+            ctx.moveTo(lastX, lastY);
+            ctx.lineTo(pos.x, pos.y);
+            ctx.stroke();
+            
+            lastX = pos.x;
+            lastY = pos.y;
+        }
+
+        function stopDrawing() {
+            isDrawing = false;
+        }
+
+        function getPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            let clientX, clientY;
+            
+            if (e.touches && e.touches.length > 0) {
+                clientX = e.touches[0].clientX;
+                clientY = e.touches[0].clientY;
+            } else {
+                clientX = e.clientX;
+                clientY = e.clientY;
+            }
+            
+            return {
+                x: clientX - rect.left,
+                y: clientY - rect.top
+            };
+        }
+
+        // Event Listeners
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', draw);
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+
+        canvas.addEventListener('touchstart', startDrawing, {passive: false});
+        canvas.addEventListener('touchmove', draw, {passive: false});
+        canvas.addEventListener('touchend', stopDrawing);
+
+        // Initial Resize
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+    </script>
+</body>
+</html>
+
+
