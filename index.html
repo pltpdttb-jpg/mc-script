@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ttb reserve - MC Teleprompter</title>
     
     <!-- Tailwind CSS -->
@@ -21,8 +21,8 @@
             font-family: 'Prompt', sans-serif;
             background-color: #020617; /* slate-950 */
             color: #f1f5f9; /* slate-100 */
+            overscroll-behavior-y: none; /* Prevent pull-to-refresh on mobile */
         }
-        /* ซ่อน Scrollbar แต่ยังเลื่อนได้ */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -36,15 +36,18 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #475569; 
         }
+        .disable-scroll {
+            overflow: hidden !important;
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState, useEffect } = React;
+        const { useState, useEffect, useRef } = React;
 
-        // --- SVG Icons Components (แทนที่ lucide-react เพื่อให้ใช้แบบหน้าเดียวจบได้) ---
+        // --- SVG Icons Components ---
         const ChevronRight = ({ size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><polyline points="9 18 15 12 9 6"></polyline></svg>
         );
@@ -63,22 +66,30 @@
         const CheckCircle2 = ({ size = 24, className = "" }) => (
             <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><circle cx="12" cy="12" r="10"></circle><path d="m9 12 2 2 4-4"></path></svg>
         );
+        const PenTool = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m12 19 7-7 3 3-7 7-3-3z"></path><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="m2 2 7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>
+        );
+        const Eraser = ({ size = 24, className = "" }) => (
+            <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path><path d="M22 21H7"></path><path d="m5 11 9 9"></path></svg>
+        );
 
-        // --- ข้อมูลสคริปต์ ---
+        // --- ข้อมูลสคริปต์ พิธีกรคู่ (อาร์ม & กุ๊ก) ---
+        // ใช้เครื่องหมาย **ข้อความ** เพื่อทำ Highlight รายชื่อและตำแหน่งวิทยากร
         const scriptData = [
           {
             id: 1,
             time: "13:15 น.",
             title: "กล่าวเปิดงาน (Opening & Agenda)",
-            action: "(MC เดินขึ้นเวที ยิ้มแย้ม ทอดสายตามองผู้ฟัง และใช้น้ำเสียงฉะฉาน ชวนติดตาม)",
-            text: [
-              "สวัสดีแขกผู้มีเกียรติและลูกค้า ttb reserve ทุกท่านครับ ผม [ชื่อพิธีกร] รับหน้าที่เป็นผู้ดำเนินรายการในวันนี้ครับ",
-              "ทุกท่านครับ... ในโลกการลงทุนปัจจุบันที่มีตัวแปรทางเศรษฐกิจซับซ้อนมากมาย จนทำให้ตลาดเกิดความผันผวนขั้นสุด แน่นอนครับว่า ในสถานการณ์เช่นนี้ คนที่จะสามารถสร้างผลตอบแทนได้ดีที่สุด จะต้องเป็น 'คนที่รู้ข้อมูลเร็วที่สุด และรู้ข้อมูลมากที่สุด'",
-              "และนั่นคือหัวใจสำคัญของงานในวันนี้ครับ กับงาน Innovative Investment Solutions For Uncertain Climate “พลิกความผันผวน ด้วยนวัตกรรม และโซลูชันทางการเงิน”",
-              "ซึ่งในวันนี้ ทุกท่านจะได้พบกับ...",
-              "หัวข้อที่ 1 ‘Investment Outlook 2026’ โดย คุณศรายุทธ แก้วเกษ หัวหน้าบริหารความเชี่ยวชาญด้านการลงทุนและความคุ้มครอง ที่จะมาเจาะลึกทิศทางเศรษฐกิจโลกและภาพรวมตลาด เพื่อให้ทุกท่านได้รู้ทันเทรนด์การลงทุนและเตรียมความพร้อมก่อนใคร",
-              "และต่อเนื่องด้วยหัวข้อที่ 2 ‘Innovative Investment Solutions For Uncertain Climate’ โดย คุณชวมนต์ วินิจตรงจิตร รองประธานเจ้าหน้าที่บริหาร หัวหน้ากลุ่มลูกค้า ธนบดีธนกิจ, ttb ที่จะมาเผยถึงนวัตกรรมและโซลูชันทางการเงิน ที่จะช่วยปรับพอร์ตการลงทุนของทุกท่านให้สอดรับกับทุกเทรนด์ และพลิกความผันผวนให้กลายเป็นโอกาสครับ",
-              "และเพื่อเป็นการเริ่มต้นงานสัมมนาสุดเอ็กซ์คลูซีฟในวันนี้อย่างเป็นทางการ ผมขอเรียนเชิญ คุณจักรพันธ์ จารุธีรศานต์ หัวหน้าบริหารเครือข่ายสาขา ทีทีบี ขึ้นกล่าวเปิดงานและต้อนรับแขกผู้มีเกียรติทุกท่าน... ขอเสียงปรบมือด้วยครับ"
+            action: "(MC ทั้งสองคนเดินขึ้นเวที ยิ้มแย้ม ทอดสายตามองผู้ฟัง)",
+            dialogues: [
+              { speaker: "arm", text: "สวัสดีแขกผู้มีเกียรติและลูกค้า ttb reserve ทุกท่านครับ ผม อาร์ม รับหน้าที่เป็นผู้ดำเนินรายการร่วมในวันนี้ครับ" },
+              { speaker: "kook", text: "และดิฉัน กุ๊ก ค่ะ ขอต้อนรับทุกท่านเข้าสู่งานสัมมนาสุดเอ็กซ์คลูซีฟ Innovative Investment Solutions For Uncertain Climate “พลิกความผันผวน ด้วยนวัตกรรม และโซลูชันทางการเงิน”" },
+              { speaker: "arm", text: "ทุกท่านครับ... ในโลกการลงทุนปัจจุบันที่มีตัวแปรทางเศรษฐกิจซับซ้อนมากมาย จนทำให้ตลาดเกิดความผันผวนขั้นสุด แน่นอนครับว่า ในสถานการณ์เช่นนี้ คนที่จะสามารถสร้างผลตอบแทนได้ดีที่สุด จะต้องเป็น 'คนที่รู้ข้อมูลเร็วที่สุด และรู้ข้อมูลมากที่สุด'" },
+              { speaker: "kook", text: "และนั่นคือหัวใจสำคัญของงานในวันนี้ค่ะ ซึ่งในวันนี้ ทุกท่านจะได้พบกับ..." },
+              { speaker: "arm", text: "หัวข้อที่ 1 ‘Investment Outlook 2026’ โดย **คุณธนทัต ศรีชัยยงพานิช** **ที่ปรึกษาด้านการลงทุนและความคุ้มครอง ทีทีบี** ที่จะมาเจาะลึกทิศทางเศรษฐกิจโลกและภาพรวมตลาด เพื่อให้ทุกท่านได้รู้ทันเทรนด์การลงทุนและเตรียมความพร้อมก่อนใคร" },
+              { speaker: "kook", text: "และต่อเนื่องด้วยหัวข้อที่ 2 ‘Innovative Investment Solutions For Uncertain Climate’ โดย **คุณชวมนต์ วินิจตรงจิตร** **รองประธานเจ้าหน้าที่บริหาร หัวหน้ากลุ่มลูกค้า ธนบดีธนกิจ, ttb** ที่จะมาเผยถึงนวัตกรรมและโซลูชันทางการเงิน ที่จะช่วยปรับพอร์ตการลงทุนของทุกท่านให้สอดรับกับทุกเทรนด์ และพลิกความผันผวนให้กลายเป็นโอกาสค่ะ" },
+              { speaker: "arm", text: "และเพื่อเป็นการเริ่มต้นงานสัมมนาในวันนี้อย่างเป็นทางการ ผมขอเรียนเชิญ **คุณจักรพันธ์ จารุธีรศานต์** **หัวหน้าบริหารเครือข่ายสาขา ทีทีบี** ขึ้นกล่าวเปิดงานและต้อนรับแขกผู้มีเกียรติทุกท่าน" },
+              { speaker: "both", text: "ขอเสียงปรบมือด้วยครับ/ค่ะ" }
             ],
             note: "เมื่อพูดจบ เดินลงจากเวที รอจนคุณจักรพันธ์กล่าวจบ"
           },
@@ -86,11 +97,11 @@
             id: 2,
             time: "13:30 น.",
             title: "Session 1: Investment Outlook 2026",
-            action: "(MC เดินกลับขึ้นเวทีด้วยรอยยิ้ม และใช้น้ำเสียงกระตือรือร้น)",
-            text: [
-              "ขอขอบพระคุณ คุณจักรพันธ์ จารุธีรศานต์ หัวหน้าบริหารเครือข่ายสาขา ทีทีบี เป็นอย่างสูงครับ ที่ให้เกียรติมากล่าวเปิดงานและต้อนรับแขกผู้มีเกียรติทุกท่านอย่างอบอุ่นในวันนี้ครับ",
-              "และตอนนี้ครับ ก็ถึงเวลาที่เราจะมาก้าวให้ทันโลก ก้าวให้เร็วกว่าตลาด กับหัวข้อแรกของเราในวันนี้ครับ อย่างที่ผมได้เรียนไปตอนต้นว่า 'การรู้ข้อมูลก่อน คือความได้เปรียบ' เราจะมาเจาะลึกภาพรวมเศรษฐกิจ ทิศทางการลงทุน และไฮไลต์สำคัญที่นักลงทุนต้องจับตามอง เพื่อเตรียมความพร้อมรับมือกับทุกสถานการณ์",
-              "ขอเชิญทุกท่านพบกับ ผู้เชี่ยวชาญของเรา... ขอเสียงปรบมือต้อนรับ คุณศรายุทธ แก้วเกษ ครับ"
+            action: "(MC ทั้งคู่เดินกลับขึ้นเวทีด้วยรอยยิ้ม และใช้น้ำเสียงกระตือรือร้น)",
+            dialogues: [
+              { speaker: "arm", text: "ขอขอบพระคุณ **คุณจักรพันธ์ จารุธีรศานต์** เป็นอย่างสูงครับ ที่ให้เกียรติมากล่าวเปิดงานและต้อนรับแขกผู้มีเกียรติทุกท่านอย่างอบอุ่นในวันนี้ครับ" },
+              { speaker: "kook", text: "และตอนนี้ค่ะ ก็ถึงเวลาที่เราจะมาก้าวให้ทันโลก ก้าวให้เร็วกว่าตลาด กับหัวข้อแรกของเราในวันนี้ อย่างที่น้องอาร์มได้เรียนไปตอนต้นว่า 'การรู้ข้อมูลก่อน คือความได้เปรียบ' เราจะมาเจาะลึกภาพรวมเศรษฐกิจและไฮไลต์สำคัญที่นักลงทุนต้องจับตามอง" },
+              { speaker: "arm", text: "ขอเชิญทุกท่านพบกับ ผู้เชี่ยวชาญของเรา... ขอเสียงปรบมือต้อนรับ **คุณธนทัต ศรีชัยยงพานิช** ครับ" }
             ],
             note: "เมื่อพูดจบ เดินลงจากเวที ให้พื้นที่วิทยากรในการบรรยาย"
           },
@@ -98,12 +109,12 @@
             id: 3,
             time: "14:00 น.",
             title: "Session 2: Innovative Investment Solutions",
-            action: "(MC เดินขึ้นเวทีหลังจาก Session 1 จบลง ทอดสายตามองผู้ฟัง พยักหน้าเล็กน้อยเพื่อแสดงความเห็นด้วยกับข้อมูลที่เพิ่งจบไป)",
-            text: [
-              "ขอขอบพระคุณ คุณศรายุทธ แก้วเกษ สำหรับข้อมูลที่อัดแน่นและวิสัยทัศน์ที่เฉียบคมมากๆ ครับ",
-              "ทุกท่านครับ... เราได้เห็นภาพรวมและทิศทางของตลาดกันไปแล้ว จะเห็นได้ชัดเจนเลยว่าความท้าทายและความผันผวนยังคงรออยู่ แต่ในทุกความท้าทาย ย่อมมี 'โอกาส' ซ่อนอยู่เสมอครับ",
-              "ลำดับต่อไป เราจะมาเจาะลึกถึงกุญแจสำคัญของงานในวันนี้ นั่นก็คือ 'นวัตกรรม' และโซลูชันทางการเงินจาก ttb ที่ถูกออกแบบมาเพื่อปกป้องและต่อยอดความมั่งคั่งของทุกท่านโดยเฉพาะ",
-              "ท่ามกลางสภาพอากาศทางการลงทุนที่คาดเดาได้ยากแบบนี้ นวัตกรรมตัวนี้จะทำงานอย่างไร ขอเสียงปรบมือต้อนรับ คุณชวมนต์ วินิจตรงจิตร รองประธานเจ้าหน้าที่บริหาร หัวหน้ากลุ่มลูกค้า ธนบดีธนกิจ ครับ"
+            action: "(MC ทั้งคู่เดินขึ้นเวทีหลังจาก Session 1 จบลง พยักหน้าเล็กน้อยเพื่อแสดงความเห็นด้วยกับข้อมูลที่เพิ่งจบไป)",
+            dialogues: [
+              { speaker: "kook", text: "ขอขอบพระคุณ **คุณธนทัต ศรีชัยยงพานิช** สำหรับข้อมูลที่อัดแน่นและวิสัยทัศน์ที่เฉียบคมมากๆ ค่ะ" },
+              { speaker: "arm", text: "ทุกท่านครับ... เราได้เห็นภาพรวมและทิศทางของตลาดกันไปแล้ว จะเห็นได้ชัดเจนเลยว่าความท้าทายและความผันผวนยังคงรออยู่ แต่ในทุกความท้าทาย ย่อมมี 'โอกาส' ซ่อนอยู่เสมอครับ" },
+              { speaker: "kook", text: "ลำดับต่อไป เราจะมาเจาะลึกถึงกุญแจสำคัญของงานในวันนี้ นั่นก็คือ 'นวัตกรรม' และโซลูชันทางการเงินจาก ttb ที่ถูกออกแบบมาเพื่อปกป้องและต่อยอดความมั่งคั่งของทุกท่านโดยเฉพาะ นวัตกรรมตัวนี้จะทำงานอย่างไร" },
+              { speaker: "arm", text: "ขอเสียงปรบมือต้อนรับ **คุณชวมนต์ วินิจตรงจิตร** **รองประธานเจ้าหน้าที่บริหาร หัวหน้ากลุ่มลูกค้า ธนบดีธนกิจ** ครับ" }
             ],
             note: "เมื่อพูดจบ เดินลงจากเวที รอจนการบรรยายจบ"
           },
@@ -111,24 +122,45 @@
             id: 4,
             time: "15:30 น.",
             title: "สรุปจบงาน & Private Consultation",
-            action: "(MC เดินขึ้นเวทีเป็นครั้งสุดท้าย ยิ้มแย้ม และใช้น้ำเสียงที่นุ่มนวล เป็นกันเองมากขึ้น)",
-            text: [
-              "ขอขอบพระคุณ คุณชวมนต์ วินิจตรงจิตร เป็นอย่างสูงครับ",
-              "เชื่อว่าในเวลานี้ ทุกท่านน่าจะได้เห็นถึงศักยภาพของโซลูชันทางการเงิน ที่จะมาเป็นตัวช่วยสำคัญในการ 'พลิกความผันผวน' ให้กลายเป็นการเติบโตของความมั่งคั่งอย่างยั่งยืนกันแล้วนะครับ",
-              "สำหรับช่วงเวลาต่อจากนี้ไป จนถึงเวลา 16 นาฬิกา 30 นาที จะเป็นช่วงเวลาสุดเอ็กซ์คลูซีฟ สำหรับ Private Consultation ครับ แขกผู้มีเกียรติท่านใดที่มีคำถามเพิ่มเติม หรือต้องการรับคำปรึกษาเชิงลึกเกี่ยวกับการจัดพอร์ตการลงทุนส่วนบุคคล รวมถึงข้อมูลผลิตภัณฑ์ที่ได้นำเสนอไปในวันนี้ ทางเรามีทีม Wealth Manager และผู้เชี่ยวชาญด้านการลงทุน ที่เตรียมพร้อมให้คำแนะนำแบบส่วนตัว บริเวณพื้นที่ที่จัดเตรียมไว้ด้านหลังได้เลยครับ",
-              "นอกจากนี้ ทางเราได้จัดเตรียมอาหารว่างและเครื่องดื่มสุดพิเศษไว้คอยบริการทุกท่านเป็นที่เรียบร้อยแล้วครับ สามารถเชิญรับประทานพร้อมพูดคุยแลกเปลี่ยนมุมมองกันได้ตามอัธยาศัยเลยครับ",
-              "สำหรับช่วงเวลาบนเวทีนี้ ผม [ชื่อพิธีกร] และทีมงาน ttb reserve ขอขอบพระคุณทุกท่านเป็นอย่างสูง ที่ให้เกียรติสละเวลามาร่วมงานสัมมนาในวันนี้ หวังเป็นอย่างยิ่งว่าทุกท่านจะได้รับประโยชน์และเครื่องมือที่จะนำไปต่อยอดความมั่งคั่งได้อย่างไร้ขีดจำกัด",
-              "ขอให้ทุกท่านมีความสุขกับการลงทุน และเดินทางกลับโดยสวัสดิภาพ... สวัสดีครับ"
+            action: "(MC ทั้งคู่เดินขึ้นเวทีเป็นครั้งสุดท้าย ยิ้มแย้ม และใช้น้ำเสียงที่เป็นกันเองมากขึ้น)",
+            dialogues: [
+              { speaker: "arm", text: "ขอขอบพระคุณ **คุณชวมนต์ วินิจตรงจิตร** เป็นอย่างสูงครับ" },
+              { speaker: "kook", text: "เชื่อว่าในเวลานี้ ทุกท่านน่าจะได้เห็นถึงศักยภาพของโซลูชันทางการเงิน ที่จะมาเป็นตัวช่วยสำคัญในการ 'พลิกความผันผวน' ให้กลายเป็นการเติบโตของความมั่งคั่งอย่างยั่งยืนกันแล้วนะคะ" },
+              { speaker: "arm", text: "สำหรับช่วงเวลาต่อจากนี้ไป จนถึงเวลา 16 นาฬิกา 30 นาที จะเป็นช่วงเวลาสุดเอ็กซ์คลูซีฟ สำหรับ Private Consultation ครับ แขกผู้มีเกียรติท่านใดที่มีคำถามเพิ่มเติม ทางเรามีทีม Wealth Manager และผู้เชี่ยวชาญด้านการลงทุน เตรียมพร้อมให้คำแนะนำแบบส่วนตัว บริเวณพื้นที่ด้านหลังได้เลยครับ" },
+              { speaker: "kook", text: "นอกจากนี้ ทางเราได้จัดเตรียมอาหารว่างและเครื่องดื่มสุดพิเศษไว้คอยบริการทุกท่านเป็นที่เรียบร้อยแล้วค่ะ สามารถเชิญรับประทานพร้อมพูดคุยแลกเปลี่ยนมุมมองกันได้ตามอัธยาศัยเลยค่ะ" },
+              { speaker: "arm", text: "สำหรับช่วงเวลาบนเวทีนี้ ผม อาร์ม ครับ" },
+              { speaker: "kook", text: "และดิฉัน กุ๊ก ค่ะ พร้อมทีมงาน ttb reserve ขอขอบพระคุณทุกท่านเป็นอย่างสูง ที่ให้เกียรติสละเวลามาร่วมงานสัมมนาในวันนี้" },
+              { speaker: "both", text: "ขอให้ทุกท่านมีความสุขกับการลงทุน และเดินทางกลับโดยสวัสดิภาพ... สวัสดีครับ/ค่ะ" }
             ],
             note: "จบงาน เชิญแขกเข้าสู่พื้นที่ให้คำปรึกษา"
           }
         ];
 
+        // Helper สำหรับ Render Text Highlight (เน้นชื่อวิทยากร)
+        const parseHighlightText = (text) => {
+            const parts = text.split(/\*\*(.*?)\*\*/g);
+            return parts.map((part, i) => {
+                if (i % 2 === 1) { // ข้อความที่อยู่ใน **...**
+                    return <span key={i} className="bg-gradient-to-r from-amber-500/30 to-yellow-400/20 text-amber-300 font-bold px-3 py-1 rounded-md border border-amber-500/50 mx-1 inline-block drop-shadow-md">{part}</span>;
+                }
+                return <React.Fragment key={i}>{part}</React.Fragment>;
+            });
+        }
+
         // --- Main App Component ---
         function App() {
           const [currentStep, setCurrentStep] = useState(0);
           const [currentTime, setCurrentTime] = useState("");
+          const [role, setRole] = useState("all"); // "all", "arm", "kook"
+          
+          // Canvas/Drawing State
+          const [isDrawingMode, setIsDrawingMode] = useState(false);
+          const [lines, setLines] = useState({}); // { stepId: [ { points: [{x,y}] } ] }
+          const canvasRef = useRef(null);
+          const mainRef = useRef(null);
+          const isDrawing = useRef(false);
 
+          // อัปเดตนาฬิกา
           useEffect(() => {
             const timer = setInterval(() => {
               const now = new Date();
@@ -137,46 +169,158 @@
             return () => clearInterval(timer);
           }, []);
 
+          // จัดการ Canvas Dimensions และ Redraw
+          useEffect(() => {
+            const canvas = canvasRef.current;
+            const mainContent = mainRef.current;
+            if (!canvas || !mainContent) return;
+
+            // ให้ขนาด canvas เท่ากับ scrollHeight ของ main
+            canvas.width = mainContent.scrollWidth;
+            canvas.height = mainContent.scrollHeight;
+
+            redrawCanvas();
+          }, [currentStep, lines, isDrawingMode]);
+
+          const redrawCanvas = () => {
+             const canvas = canvasRef.current;
+             if (!canvas) return;
+             const ctx = canvas.getContext('2d');
+             ctx.clearRect(0, 0, canvas.width, canvas.height);
+             
+             const currentLines = lines[currentStep] || [];
+             currentLines.forEach(line => {
+                ctx.beginPath();
+                ctx.strokeStyle = '#ef4444'; // สีปากกา (แดง)
+                ctx.lineWidth = 4;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                
+                line.points.forEach((point, i) => {
+                    if (i === 0) ctx.moveTo(point.x, point.y);
+                    else ctx.lineTo(point.x, point.y);
+                });
+                ctx.stroke();
+             });
+          };
+
+          // Mouse/Touch Events สำหรับการวาด
+          const getCoordinates = (e) => {
+             const canvas = canvasRef.current;
+             const rect = canvas.getBoundingClientRect();
+             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+             return {
+                 x: clientX - rect.left + mainRef.current.scrollLeft,
+                 y: clientY - rect.top + mainRef.current.scrollTop
+             };
+          };
+
+          const startDrawing = (e) => {
+              if (!isDrawingMode) return;
+              e.preventDefault();
+              isDrawing.current = true;
+              const coords = getCoordinates(e);
+              
+              setLines(prev => {
+                  const currentLines = prev[currentStep] || [];
+                  return { ...prev, [currentStep]: [...currentLines, { points: [coords] }] };
+              });
+          };
+
+          const draw = (e) => {
+              if (!isDrawing.current || !isDrawingMode) return;
+              e.preventDefault();
+              const coords = getCoordinates(e);
+              
+              setLines(prev => {
+                  const currentLines = [...(prev[currentStep] || [])];
+                  if(currentLines.length === 0) return prev;
+                  const lastLine = currentLines[currentLines.length - 1];
+                  lastLine.points.push(coords);
+                  return { ...prev, [currentStep]: currentLines };
+              });
+          };
+
+          const stopDrawing = () => {
+              isDrawing.current = false;
+          };
+
+          const clearDrawing = () => {
+              setLines(prev => ({ ...prev, [currentStep]: [] }));
+          };
+
+          // เปลี่ยนหน้าสคริปต์
           const handleNext = () => {
             if (currentStep < scriptData.length - 1) {
               setCurrentStep(currentStep + 1);
-              window.scrollTo(0, 0);
+              if (mainRef.current) mainRef.current.scrollTo(0, 0);
             }
           };
 
           const handlePrev = () => {
             if (currentStep > 0) {
               setCurrentStep(currentStep - 1);
-              window.scrollTo(0, 0);
+              if (mainRef.current) mainRef.current.scrollTo(0, 0);
             }
           };
 
           const currentScript = scriptData[currentStep];
 
+          // เช็คสไตล์ตาม Role
+          const getDialogStyle = (speaker) => {
+              if (role === "all") return "opacity-100";
+              if (speaker === "both") return "opacity-100 ring-2 ring-amber-500/50 bg-amber-900/10 p-4 rounded-xl";
+              if (role === speaker) return "opacity-100 scale-[1.02] transform transition-all";
+              return "opacity-30 grayscale blur-[0.5px] pointer-events-none"; // Dim ของคนอื่น
+          };
+
+          const getSpeakerLabel = (speaker) => {
+              if (speaker === "arm") return <span className="text-cyan-400 font-bold bg-cyan-900/30 px-3 py-1 rounded-full text-sm">MC อาร์ม</span>;
+              if (speaker === "kook") return <span className="text-pink-400 font-bold bg-pink-900/30 px-3 py-1 rounded-full text-sm">MC กุ๊ก</span>;
+              if (speaker === "both") return <span className="text-amber-400 font-bold bg-amber-900/30 px-3 py-1 rounded-full text-sm">พูดพร้อมกัน (อาร์ม & กุ๊ก)</span>;
+          }
+
           return (
             <div className="min-h-screen flex flex-col md:flex-row">
               {/* Sidebar / Timeline Navigation */}
-              <div className="w-full md:w-1/4 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 p-6 flex flex-col">
-                <div className="mb-8">
+              <div className="w-full md:w-1/4 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 p-6 flex flex-col z-20">
+                <div className="mb-6">
                   <h1 className="text-xl font-bold text-amber-500 tracking-wider">ttb reserve</h1>
-                  <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest">MC Teleprompter</p>
+                  <p className="text-xs text-slate-400 mt-1 uppercase tracking-widest">Dual MC Teleprompter</p>
                 </div>
 
-                <div className="flex-grow hidden md:block">
+                {/* Role Selector */}
+                <div className="mb-8 bg-slate-950 p-2 rounded-xl border border-slate-800">
+                    <p className="text-xs text-slate-500 text-center mb-2 font-semibold tracking-wider">เลือกบทบาท (SELECT ROLE)</p>
+                    <div className="flex flex-col gap-2">
+                        <button onClick={() => setRole('arm')} className={`py-2 px-4 rounded-lg text-sm font-bold transition-all ${role === 'arm' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>
+                            🎙️ น้องอาร์ม (ชาย)
+                        </button>
+                        <button onClick={() => setRole('kook')} className={`py-2 px-4 rounded-lg text-sm font-bold transition-all ${role === 'kook' ? 'bg-pink-600 text-white shadow-lg shadow-pink-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>
+                            🎙️ พี่กุ๊ก (หญิง)
+                        </button>
+                        <button onClick={() => setRole('all')} className={`py-2 px-4 rounded-lg text-sm font-bold transition-all ${role === 'all' ? 'bg-amber-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>
+                            👁️ ดูสคริปต์ทั้งหมด
+                        </button>
+                    </div>
+                </div>
+
+                <div className="flex-grow hidden md:block overflow-y-auto">
                   <h2 className="text-sm font-semibold text-slate-500 uppercase mb-4 tracking-wider">Run Cue</h2>
-                  <div className="space-y-4">
+                  <div className="space-y-3">
                     {scriptData.map((step, index) => (
                       <div 
                         key={step.id}
                         onClick={() => setCurrentStep(index)}
-                        className={`cursor-pointer p-4 rounded-xl transition-all duration-300 border ${
+                        className={`cursor-pointer p-3 rounded-xl transition-all duration-300 border ${
                           currentStep === index 
                             ? 'bg-amber-500/10 border-amber-500/50 text-amber-400' 
                             : 'bg-slate-800/50 border-transparent text-slate-400 hover:bg-slate-800 hover:text-slate-200'
                         }`}
                       >
                         <div className="flex items-center gap-2 mb-1">
-                          <Clock size={14} />
+                          <Clock size={12} />
                           <span className="text-xs font-mono">{step.time}</span>
                         </div>
                         <div className="font-medium text-sm leading-tight">{step.title}</div>
@@ -193,64 +337,97 @@
               </div>
 
               {/* Main Content Area */}
-              <div className="w-full md:w-3/4 flex flex-col h-screen overflow-hidden">
+              <div className="w-full md:w-3/4 flex flex-col h-screen overflow-hidden relative">
                 
-                {/* Header */}
-                <header className="bg-slate-900/80 backdrop-blur-md p-6 border-b border-slate-800 flex justify-between items-center z-10 sticky top-0">
+                {/* Header Area */}
+                <header className="bg-slate-900/90 backdrop-blur-md p-4 md:p-6 border-b border-slate-800 flex justify-between items-center z-30 sticky top-0">
                   <div>
-                    <div className="text-amber-500 font-mono text-sm flex items-center gap-2 mb-1">
-                      <Clock size={16} /> Cue Time: {currentScript.time}
+                    <div className="text-amber-500 font-mono text-xs md:text-sm flex items-center gap-2 mb-1">
+                      <Clock size={14} /> {currentScript.time}
                     </div>
-                    <h2 className="text-2xl md:text-3xl font-bold text-white">{currentScript.title}</h2>
+                    <h2 className="text-xl md:text-2xl font-bold text-white">{currentScript.title}</h2>
                   </div>
-                  <div className="md:hidden text-2xl font-mono text-white font-light">{currentTime}</div>
+                  
+                  {/* Drawing Tools Toggle */}
+                  <div className="flex items-center gap-3">
+                    {isDrawingMode && (
+                       <button onClick={clearDrawing} className="p-2 md:px-4 md:py-2 bg-slate-800 text-slate-300 rounded-lg hover:bg-slate-700 flex items-center gap-2 text-sm border border-slate-700 transition-all">
+                           <Eraser size={18} /> <span className="hidden md:inline">ลบหมึก</span>
+                       </button>
+                    )}
+                    <button 
+                        onClick={() => setIsDrawingMode(!isDrawingMode)} 
+                        className={`p-3 md:px-5 md:py-2 rounded-lg flex items-center gap-2 text-sm font-bold border transition-all ${
+                            isDrawingMode 
+                            ? 'bg-red-500/20 text-red-400 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.2)]' 
+                            : 'bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700'
+                        }`}
+                    >
+                        <PenTool size={18} /> 
+                        <span className="hidden md:inline">{isDrawingMode ? 'ปิดโหมดปากกา (เพื่อเลื่อนจอ)' : 'เปิดโหมดปากกา (จดโน้ต)'}</span>
+                    </button>
+                  </div>
                 </header>
 
-                {/* Script Content */}
-                <main className="flex-grow overflow-y-auto p-6 md:p-10 pb-32 scroll-smooth">
-                  <div className="max-w-4xl mx-auto">
+                {/* Script Content (Scrollable) */}
+                <main 
+                    ref={mainRef}
+                    className={`flex-grow overflow-y-auto p-4 md:p-10 pb-40 scroll-smooth relative ${isDrawingMode ? 'disable-scroll' : ''}`}
+                >
+                  <div className="max-w-4xl mx-auto relative z-10">
                     
                     {/* Action / Stage Direction */}
-                    <div className="bg-blue-900/20 border-l-4 border-blue-500 p-6 rounded-r-xl mb-8 flex items-start gap-4">
+                    <div className="bg-blue-900/20 border-l-4 border-blue-500 p-4 md:p-6 rounded-r-xl mb-8 flex items-start gap-4">
                       <UserIcon className="text-blue-400 shrink-0 mt-1" size={24} />
                       <div>
-                        <span className="block text-blue-400 font-bold text-sm uppercase mb-1">Action / ท่าทาง</span>
-                        <span className="text-blue-100 text-lg md:text-xl italic leading-relaxed">{currentScript.action}</span>
+                        <span className="block text-blue-400 font-bold text-xs md:text-sm uppercase mb-1">Action / ท่าทาง</span>
+                        <span className="text-blue-100 text-base md:text-xl italic leading-relaxed">{currentScript.action}</span>
                       </div>
                     </div>
 
-                    {/* Spoken Text */}
-                    <div className="space-y-6">
-                      {currentScript.text.map((paragraph, idx) => (
-                        <div key={idx} className="flex gap-4">
-                          <Mic className="text-amber-500 shrink-0 mt-2 opacity-50" size={24} />
-                          <p className="text-2xl md:text-4xl text-white leading-[1.6] md:leading-[1.7] font-light tracking-wide">
-                            {paragraph.split('[ชื่อพิธีกร]').map((part, i, arr) => (
-                              <React.Fragment key={i}>
-                                {part}
-                                {i < arr.length - 1 && (
-                                  <span className="bg-amber-500/20 text-amber-400 px-2 py-1 rounded border border-amber-500/30 mx-1 font-medium">
-                                    [ชื่อพิธีกร]
-                                  </span>
-                                )}
-                              </React.Fragment>
-                            ))}
-                          </p>
+                    {/* Dialogues */}
+                    <div className="space-y-8">
+                      {currentScript.dialogues.map((dialogue, idx) => (
+                        <div key={idx} className={`flex flex-col gap-2 transition-all duration-500 ${getDialogStyle(dialogue.speaker)}`}>
+                          <div>{getSpeakerLabel(dialogue.speaker)}</div>
+                          <div className="flex gap-4 items-start pl-2 border-l-2 border-slate-800 ml-2">
+                            <Mic className={`shrink-0 mt-2 opacity-40 ${dialogue.speaker === 'arm' ? 'text-cyan-500' : dialogue.speaker === 'kook' ? 'text-pink-500' : 'text-amber-500'}`} size={24} />
+                            <p className="text-2xl md:text-4xl text-white leading-[1.6] md:leading-[1.7] font-light tracking-wide">
+                                {parseHighlightText(dialogue.text)}
+                            </p>
+                          </div>
                         </div>
                       ))}
                     </div>
 
                     {/* Ending Note */}
-                    <div className="mt-12 bg-slate-800/50 border border-slate-700 p-6 rounded-xl flex items-center gap-4">
+                    <div className="mt-16 bg-slate-800/50 border border-slate-700 p-6 rounded-xl flex items-center gap-4">
                        <CheckCircle2 className="text-emerald-400 shrink-0" size={24} />
                        <p className="text-emerald-300 text-lg">{currentScript.note}</p>
                     </div>
 
                   </div>
+
+                  {/* Canvas Overlay for Drawing */}
+                  <canvas
+                      ref={canvasRef}
+                      className="absolute top-0 left-0 z-20"
+                      style={{ 
+                          pointerEvents: isDrawingMode ? 'auto' : 'none',
+                          cursor: isDrawingMode ? 'crosshair' : 'default'
+                      }}
+                      onTouchStart={startDrawing}
+                      onTouchMove={draw}
+                      onTouchEnd={stopDrawing}
+                      onMouseDown={startDrawing}
+                      onMouseMove={draw}
+                      onMouseUp={stopDrawing}
+                      onMouseLeave={stopDrawing}
+                  />
                 </main>
 
                 {/* Bottom Navigation Controls */}
-                <footer className="bg-slate-900 border-t border-slate-800 p-4 md:p-6 sticky bottom-0 z-10">
+                <footer className="bg-slate-900 border-t border-slate-800 p-4 md:p-6 sticky bottom-0 z-30">
                   <div className="max-w-4xl mx-auto flex justify-between items-center gap-4">
                     <button 
                       onClick={handlePrev}
@@ -294,4 +471,5 @@
     </script>
 </body>
 </html>
+
 
