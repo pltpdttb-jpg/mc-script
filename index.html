@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ttb reserve - Dynamic MC Teleprompter</title>
+    <title>ttb reserve - MC Teleprompter</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -47,47 +47,42 @@
         const PenTool = ({ size = 24 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m12 19 7-7 3 3-7 7-3-3z"></path><path d="m18 13-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"></path><path d="m2 2 7.586 7.586"></path><circle cx="11" cy="11" r="2"></circle></svg>;
         const Eraser = ({ size = 24 }) => <svg xmlns="http://www.w3.org/2000/svg" width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"></path><path d="M22 21H7"></path><path d="m5 11 9 9"></path></svg>;
 
-        // --- Script Generator Logic ---
+        // --- Script Generator Logic (Naturalized) ---
         const generateScript = (d) => [
           {
             id: 1,
             time: "13:15 น.",
             title: "กล่าวเปิดงาน (Opening & Agenda)",
-            action: "(MC ทั้งสองคนเดินขึ้นเวที ยิ้มแย้ม ทอดสายตามองผู้ฟัง)",
+            action: "(MC เดินขึ้นเวที ยิ้มแย้ม ทอดสายตามองผู้ฟัง บุคลิกมั่นใจและดูภูมิฐาน)",
             dialogues: [
-              { speaker: "male", text: `สวัสดีแขกผู้มีเกียรติและลูกค้า ttb reserve ทุกท่านครับ ผม ${d.mcMaleFirstName} ${d.mcMaleLastName} รับหน้าที่เป็นผู้ดำเนินรายการร่วมในวันนี้ครับ` },
-              { speaker: "female", text: `และดิฉัน ${d.mcFemaleFirstName} ${d.mcFemaleLastName} ค่ะ ขอต้อนรับทุกท่านเข้าสู่งานสัมมนาสุดเอ็กซ์คลูซีฟ Innovative Investment Solutions For Uncertain Climate “พลิกความผันผวน ด้วยนวัตกรรม และโซลูชันทางการเงิน”` },
-              { speaker: "male", text: `ทุกท่านครับ... ในโลกการลงทุนปัจจุบันที่มีตัวแปรทางเศรษฐกิจซับซ้อนมากมาย จนทำให้ตลาดเกิดความผันผวนขั้นสุด แน่นอนครับว่า ในสถานการณ์เช่นนี้ คนที่จะสามารถสร้างผลตอบแทนได้ดีที่สุด จะต้องเป็น 'คนที่รู้ข้อมูลเร็วที่สุด และรู้ข้อมูลมากที่สุด'` },
-              { speaker: "female", text: `และนั่นคือหัวใจสำคัญของงานในวันนี้ค่ะ ซึ่งในวันนี้ ทุกท่านจะได้พบกับ...` },
-              { speaker: "male", text: `หัวข้อที่ 1 ‘Investment Outlook 2026’ โดย **${d.sp1Name}** **${d.sp1Title}** ที่จะมาเจาะลึกทิศทางเศรษฐกิจโลกและภาพรวมตลาด เพื่อให้ทุกท่านได้รู้ทันเทรนด์การลงทุนและเตรียมความพร้อมก่อนใคร` },
-              { speaker: "female", text: `และต่อเนื่องด้วยหัวข้อที่ 2 ‘Innovative Investment Solutions For Uncertain Climate’ โดย **${d.sp2Name}** **${d.sp2Title}** ที่จะมาเผยถึงนวัตกรรมและโซลูชันทางการเงิน ที่จะช่วยปรับพอร์ตการลงทุนของทุกท่านให้สอดรับกับทุกเทรนด์ และพลิกความผันผวนให้กลายเป็นโอกาสค่ะ` },
-              { speaker: "male", text: `และเพื่อเป็นการเริ่มต้นงานสัมมนาในวันนี้อย่างเป็นทางการ ผมขอเรียนเชิญ **${d.opName}** **${d.opTitle}** ขึ้นกล่าวเปิดงานและต้อนรับแขกผู้มีเกียรติทุกท่าน` },
-              { speaker: "both", text: `ขอเสียงปรบมือด้วยครับ/ค่ะ` }
+              { text: `สวัสดีแขกผู้มีเกียรติและลูกค้า ttb reserve ทุกท่านครับ ผม ${d.mcFirstName} ${d.mcLastName} รับหน้าที่เป็นผู้ดำเนินรายการในวันนี้ครับ` },
+              { text: `ทุกท่านครับ... ตอนนี้เราอยู่ในยุคที่โลกการลงทุนหมุนเร็วมากเลยนะครับ ปัจจัยเศรษฐกิจต่างๆ ไม่ว่าจะเป็นนโยบายการเงิน ภูมิรัฐศาสตร์ หรือความผันผวนของตลาด ล้วนเป็นความท้าทายที่เราต้องรับมือ` },
+              { text: `แต่สิ่งที่จะช่วยให้เราก้าวข้ามความท้าทายเหล่านี้ไปได้ ก็คือ 'ข้อมูลที่แม่นยำ' และ 'เครื่องมือที่ดี' ครับ ซึ่งนั่นคือสิ่งที่ ttb reserve เตรียมมามอบให้กับทุกท่านในงานสัมมนาสุดเอ็กซ์คลูซีฟวันนี้ครับ` },
+              { text: `เพื่อเริ่มต้นงานในวันนี้อย่างเป็นทางการ ผมขอเรียนเชิญ **${d.opName}** **${d.opTitle}** ขึ้นกล่าวเปิดงานและต้อนรับทุกท่าน ขอเสียงปรบมือต้อนรับด้วยครับ` }
             ],
             note: `เมื่อพูดจบ เดินลงจากเวที รอจน${d.opName}กล่าวจบ`
           },
           {
             id: 2,
             time: "13:30 น.",
-            title: "Session 1: Investment Outlook 2026",
-            action: "(MC ทั้งคู่เดินกลับขึ้นเวทีด้วยรอยยิ้ม และใช้น้ำเสียงกระตือรือร้น)",
+            title: "Session 1: อัปเดตสถานการณ์เศรษฐกิจ",
+            action: "(MC เดินกลับขึ้นเวทีด้วยรอยยิ้ม และใช้น้ำเสียงฉะฉาน ชวนติดตาม)",
             dialogues: [
-              { speaker: "male", text: `ขอขอบพระคุณ **${d.opName}** เป็นอย่างสูงครับ ที่ให้เกียรติมากล่าวเปิดงานและต้อนรับแขกผู้มีเกียรติทุกท่านอย่างอบอุ่นในวันนี้ครับ` },
-              { speaker: "female", text: `และตอนนี้ค่ะ ก็ถึงเวลาที่เราจะมาก้าวให้ทันโลก ก้าวให้เร็วกว่าตลาด กับหัวข้อแรกของเราในวันนี้ อย่างที่น้อง${d.mcMaleNickname}ได้เรียนไปตอนต้นว่า 'การรู้ข้อมูลก่อน คือความได้เปรียบ' เราจะมาเจาะลึกภาพรวมเศรษฐกิจและไฮไลต์สำคัญที่นักลงทุนต้องจับตามอง` },
-              { speaker: "male", text: `ขอเชิญทุกท่านพบกับ ผู้เชี่ยวชาญของเรา... ขอเสียงปรบมือต้อนรับ **${d.sp1Name}** ครับ` }
+              { text: `ขอขอบพระคุณ **${d.opName}** ครับ` },
+              { text: `ทุกท่านครับ ก่อนที่เราจะวางกลยุทธ์การลงทุน เราต้องมี 'เข็มทิศ' ที่แม่นยำกันก่อน ช่วงแรกนี้ เราจะมาอัปเดตภาพรวมเศรษฐกิจและการลงทุนกันครับ เพื่อให้เห็นชัดๆ ว่าตอนนี้มีปัจจัยอะไรบ้างที่กำลังขับเคลื่อนตลาดอยู่` },
+              { text: `ขอเสียงปรบมือต้อนรับผู้เชี่ยวชาญที่จะมาฉายภาพนี้ให้เราฟังกันครับ... **${d.sp1Name}** **${d.sp1Title}** ครับ` }
             ],
             note: "เมื่อพูดจบ เดินลงจากเวที ให้พื้นที่วิทยากรในการบรรยาย"
           },
           {
             id: 3,
             time: "14:00 น.",
-            title: "Session 2: Innovative Investment Solutions",
-            action: "(MC ทั้งคู่เดินขึ้นเวทีหลังจาก Session 1 จบลง พยักหน้าเล็กน้อยเพื่อแสดงความเห็นด้วยกับข้อมูลที่เพิ่งจบไป)",
+            title: "Session 2: โซลูชันทางการเงิน",
+            action: "(MC เดินขึ้นเวทีหลังจาก Session 1 จบลง พยักหน้าเล็กน้อยเพื่อแสดงความเข้าใจในเนื้อหาที่เพิ่งจบไป)",
             dialogues: [
-              { speaker: "female", text: `ขอขอบพระคุณ **${d.sp1Name}** สำหรับข้อมูลที่อัดแน่นและวิสัยทัศน์ที่เฉียบคมมากๆ ค่ะ` },
-              { speaker: "male", text: `ทุกท่านครับ... เราได้เห็นภาพรวมและทิศทางของตลาดกันไปแล้ว จะเห็นได้ชัดเจนเลยว่าความท้าทายและความผันผวนยังคงรออยู่ แต่ในทุกความท้าทาย ย่อมมี 'โอกาส' ซ่อนอยู่เสมอครับ` },
-              { speaker: "female", text: `ลำดับต่อไป เราจะมาเจาะลึกถึงกุญแจสำคัญของงานในวันนี้ นั่นก็คือ 'นวัตกรรม' และโซลูชันทางการเงินจาก ttb ที่ถูกออกแบบมาเพื่อปกป้องและต่อยอดความมั่งคั่งของทุกท่านโดยเฉพาะ นวัตกรรมตัวนี้จะทำงานอย่างไร` },
-              { speaker: "male", text: `ขอเสียงปรบมือต้อนรับ **${d.sp2Name}** **${d.sp2Title}** ครับ` }
+              { text: `ขอบคุณ **${d.sp1Name}** มากครับ สำหรับข้อมูลที่ช่วยให้เราเห็นทิศทางตลาดได้ชัดเจนขึ้นเยอะเลยครับ` },
+              { text: `เมื่อเราพอจะเห็น 'สภาพอากาศ' ทางเศรษฐกิจกันไปแล้ว คำถามคือ... แล้วเราจะจัดพอร์ตยังไงให้แข็งแกร่งและพร้อมรับมือกับทุกสถานการณ์ดีครับ?` },
+              { text: `ช่วงต่อไป เรามีโซลูชันและนวัตกรรมทางการเงิน ที่จะมาช่วยพลิกความผันผวนให้กลายเป็นโอกาสมาฝากกันครับ ขอเสียงปรบมือต้อนรับ **${d.sp2Name}** **${d.sp2Title}** ครับ` }
             ],
             note: "เมื่อพูดจบ เดินลงจากเวที รอจนการบรรยายจบ"
           },
@@ -95,15 +90,12 @@
             id: 4,
             time: "15:30 น.",
             title: "สรุปจบงาน & Private Consultation",
-            action: "(MC ทั้งคู่เดินขึ้นเวทีเป็นครั้งสุดท้าย ยิ้มแย้ม และใช้น้ำเสียงที่เป็นกันเองมากขึ้น)",
+            action: "(MC เดินขึ้นเวทีเป็นครั้งสุดท้าย ยิ้มแย้ม และใช้น้ำเสียงที่เป็นกันเองและน่าเชื่อถือ)",
             dialogues: [
-              { speaker: "male", text: `ขอขอบพระคุณ **${d.sp2Name}** เป็นอย่างสูงครับ` },
-              { speaker: "female", text: `เชื่อว่าในเวลานี้ ทุกท่านน่าจะได้เห็นถึงศักยภาพของโซลูชันทางการเงิน ที่จะมาเป็นตัวช่วยสำคัญในการ 'พลิกความผันผวน' ให้กลายเป็นการเติบโตของความมั่งคั่งอย่างยั่งยืนกันแล้วนะคะ` },
-              { speaker: "male", text: `สำหรับช่วงเวลาต่อจากนี้ไป จนถึงเวลา 16 นาฬิกา 30 นาที จะเป็นช่วงเวลาสุดเอ็กซ์คลูซีฟ สำหรับ Private Consultation ครับ แขกผู้มีเกียรติท่านใดที่มีคำถามเพิ่มเติม ทางเรามีทีม Wealth Manager และผู้เชี่ยวชาญด้านการลงทุน เตรียมพร้อมให้คำแนะนำแบบส่วนตัว บริเวณพื้นที่ด้านหลังได้เลยครับ` },
-              { speaker: "female", text: `นอกจากนี้ ทางเราได้จัดเตรียมอาหารว่างและเครื่องดื่มสุดพิเศษไว้คอยบริการทุกท่านเป็นที่เรียบร้อยแล้วค่ะ สามารถเชิญรับประทานพร้อมพูดคุยแลกเปลี่ยนมุมมองกันได้ตามอัธยาศัยเลยค่ะ` },
-              { speaker: "male", text: `สำหรับช่วงเวลาบนเวทีนี้ ผม ${d.mcMaleNickname} ครับ` },
-              { speaker: "female", text: `และดิฉัน ${d.mcFemaleNickname} ค่ะ พร้อมทีมงาน ttb reserve ขอขอบพระคุณทุกท่านเป็นอย่างสูง ที่ให้เกียรติสละเวลามาร่วมงานสัมมนาในวันนี้` },
-              { speaker: "both", text: `ขอให้ทุกท่านมีความสุขกับการลงทุน และเดินทางกลับโดยสวัสดิภาพ... สวัสดีครับ/ค่ะ` }
+              { text: `ขอขอบพระคุณ **${d.sp2Name}** ครับ` },
+              { text: `และนี่ก็คือโซลูชันทางการเงินที่เราคัดสรรมาเพื่อลูกค้า ttb reserve โดยเฉพาะครับ หวังว่านวัตกรรมที่เรานำเสนอในวันนี้ จะเป็นเครื่องมือที่ช่วยปกป้องและต่อยอดความมั่งคั่งให้ทุกท่านได้นะครับ` },
+              { text: `หลังจากนี้ไปจนถึง 4 โมงครึ่ง (16:30 น.) เรามีทีม Wealth Manager และผู้เชี่ยวชาญ รอให้คำปรึกษาแบบส่วนตัวอยู่ที่ด้านหลังนะครับ ทุกท่านสามารถเชิญรับประทานอาหารว่างและเครื่องดื่ม พร้อมพูดคุยกันได้ตามอัธยาศัยเลยครับ` },
+              { text: `สำหรับช่วงเวลาบนเวที ผม ${d.mcNickname} และทีมงาน ttb reserve ต้องขอขอบพระคุณทุกท่านที่ให้เกียรติมาร่วมงานในวันนี้ ขอให้มีความสุขกับการลงทุน และเดินทางกลับโดยสวัสดิภาพ สวัสดีครับ` }
             ],
             note: "จบงาน เชิญแขกเข้าสู่พื้นที่ให้คำปรึกษา"
           }
@@ -124,26 +116,22 @@
         function App() {
           const [appMode, setAppMode] = useState("setup"); // "setup" | "prompter"
           
-          // State สำหรับฟอร์ม (ตั้งค่า Default ตามภาพและคำขอ)
+          // State สำหรับฟอร์ม (ตั้งค่า Default ตามที่ผู้ใช้กำหนด)
           const [formData, setFormData] = useState({
-            mcMaleNickname: "อาร์ม",
-            mcMaleFirstName: "อาร์ม",
-            mcMaleLastName: "(นามสกุล)",
-            mcFemaleNickname: "ปู",
-            mcFemaleFirstName: "โศศิษฐา",
-            mcFemaleLastName: "แซ่แดง",
-            opName: "คุณจักรพันธ์ จารุธีรศานต์",
-            opTitle: "หัวหน้าบริหารเครือข่ายสาขา ทีทีบี",
+            mcNickname: "อาร์ม",
+            mcFirstName: "อาร์ม",
+            mcLastName: "(นามสกุล)",
+            opName: "คุณทิพวรรณ แซ่ปัง",
+            opTitle: "หัวหน้าบริหารภาค กลุ่มการเงินลูกค้าบุคคล ธนาคารทหารไทยธนชาต จำกัด (มหาชน)",
             sp1Name: "คุณธนทัต ศรีชัยยงพานิช",
             sp1Title: "ที่ปรึกษาด้านการลงทุนและความคุ้มครอง ทีทีบี",
             sp2Name: "คุณชวมนต์ วินิจตรงจิตร",
-            sp2Title: "รองประธานเจ้าหน้าที่บริหาร หัวหน้ากลุ่มลูกค้า ธนบดีธนกิจ, ttb"
+            sp2Title: "รองประธานเจ้าหน้าที่บริหาร หัวหน้ากลุ่มลูกค้าธนบดีธนกิจ ทีทีบี"
           });
 
           // State สำหรับ Teleprompter
           const [currentStep, setCurrentStep] = useState(0);
           const [currentTime, setCurrentTime] = useState("");
-          const [role, setRole] = useState("all"); 
           
           // Canvas/Drawing State
           const [isDrawingMode, setIsDrawingMode] = useState(false);
@@ -248,7 +236,7 @@
                               <Settings size={32} className="text-amber-500" />
                               <div>
                                   <h1 className="text-2xl font-bold text-white">ตั้งค่ารายชื่อสำหรับสคริปต์</h1>
-                                  <p className="text-slate-400 text-sm">ข้อมูลที่กรอกจะถูกนำไปสร้างเป็นสคริปต์อัตโนมัติ (แก้ไขได้ตลอดเวลา)</p>
+                                  <p className="text-slate-400 text-sm">ตรวจสอบและแก้ไขรายชื่อวิทยากรให้ถูกต้องก่อนเริ่มงาน</p>
                               </div>
                           </div>
 
@@ -256,34 +244,18 @@
                               {/* MC Section */}
                               <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50">
                                   <h2 className="text-lg font-bold text-amber-400 mb-4 flex items-center gap-2"><Mic size={18}/> ข้อมูลพิธีกร (MC)</h2>
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                                      <div className="md:col-span-3 text-cyan-400 font-semibold border-b border-slate-700 pb-2">MC ชาย</div>
-                                      <div>
-                                          <label className="block text-sm text-slate-400 mb-1">ชื่อเล่น</label>
-                                          <input type="text" name="mcMaleNickname" value={formData.mcMaleNickname} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
-                                      </div>
-                                      <div>
-                                          <label className="block text-sm text-slate-400 mb-1">ชื่อจริง</label>
-                                          <input type="text" name="mcMaleFirstName" value={formData.mcMaleFirstName} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
-                                      </div>
-                                      <div>
-                                          <label className="block text-sm text-slate-400 mb-1">นามสกุล</label>
-                                          <input type="text" name="mcMaleLastName" value={formData.mcMaleLastName} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
-                                      </div>
-                                  </div>
                                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                      <div className="md:col-span-3 text-pink-400 font-semibold border-b border-slate-700 pb-2">MC หญิง</div>
                                       <div>
-                                          <label className="block text-sm text-slate-400 mb-1">ชื่อเล่น</label>
-                                          <input type="text" name="mcFemaleNickname" value={formData.mcFemaleNickname} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
+                                          <label className="block text-sm text-slate-400 mb-1">ชื่อเล่น MC</label>
+                                          <input type="text" name="mcNickname" value={formData.mcNickname} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
                                       </div>
                                       <div>
-                                          <label className="block text-sm text-slate-400 mb-1">ชื่อจริง</label>
-                                          <input type="text" name="mcFemaleFirstName" value={formData.mcFemaleFirstName} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
+                                          <label className="block text-sm text-slate-400 mb-1">ชื่อจริง MC</label>
+                                          <input type="text" name="mcFirstName" value={formData.mcFirstName} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
                                       </div>
                                       <div>
-                                          <label className="block text-sm text-slate-400 mb-1">นามสกุล</label>
-                                          <input type="text" name="mcFemaleLastName" value={formData.mcFemaleLastName} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
+                                          <label className="block text-sm text-slate-400 mb-1">นามสกุล MC</label>
+                                          <input type="text" name="mcLastName" value={formData.mcLastName} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
                                       </div>
                                   </div>
                               </div>
@@ -292,20 +264,20 @@
                               <div className="bg-slate-800/50 p-6 rounded-xl border border-slate-700/50">
                                   <h2 className="text-lg font-bold text-amber-400 mb-4 flex items-center gap-2"><UserIcon size={18}/> ข้อมูลผู้บริหารและวิทยากร</h2>
                                   <div className="space-y-6">
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div className="grid grid-cols-1 gap-4">
                                           <div>
                                               <label className="block text-sm text-slate-400 mb-1">ชื่อ ผู้กล่าวเปิดงาน</label>
                                               <input type="text" name="opName" value={formData.opName} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
                                           </div>
                                           <div>
                                               <label className="block text-sm text-slate-400 mb-1">ตำแหน่ง ผู้กล่าวเปิดงาน</label>
-                                              <input type="text" name="opTitle" value={formData.opTitle} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
+                                              <textarea name="opTitle" value={formData.opTitle} onChange={handleChange} rows="2" className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required></textarea>
                                           </div>
                                       </div>
                                       <hr className="border-slate-700"/>
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div className="grid grid-cols-1 gap-4">
                                           <div>
-                                              <label className="block text-sm text-slate-400 mb-1">ชื่อ วิทยากรท่านที่ 1</label>
+                                              <label className="block text-sm text-slate-400 mb-1">ชื่อ วิทยากรท่านที่ 1 (อัปเดตเศรษฐกิจ)</label>
                                               <input type="text" name="sp1Name" value={formData.sp1Name} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
                                           </div>
                                           <div>
@@ -314,9 +286,9 @@
                                           </div>
                                       </div>
                                       <hr className="border-slate-700"/>
-                                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                      <div className="grid grid-cols-1 gap-4">
                                           <div>
-                                              <label className="block text-sm text-slate-400 mb-1">ชื่อ วิทยากรท่านที่ 2</label>
+                                              <label className="block text-sm text-slate-400 mb-1">ชื่อ วิทยากรท่านที่ 2 (โซลูชันการเงิน)</label>
                                               <input type="text" name="sp2Name" value={formData.sp2Name} onChange={handleChange} className="w-full bg-slate-950 border border-slate-700 rounded-lg p-3 text-white focus:border-amber-500 focus:outline-none" required />
                                           </div>
                                           <div>
@@ -328,7 +300,7 @@
                               </div>
 
                               <button type="submit" className="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-4 rounded-xl text-lg shadow-lg shadow-amber-900/50 transition-all active:scale-95 flex justify-center items-center gap-2">
-                                  สร้างหน้าจอ Teleprompter <ChevronRight size={20}/>
+                                  เข้าสู่หน้าจอ Teleprompter <ChevronRight size={20}/>
                               </button>
                           </form>
                       </div>
@@ -340,47 +312,18 @@
           const scriptData = generateScript(formData);
           const currentScript = scriptData[currentStep];
 
-          const getDialogStyle = (speaker) => {
-              if (role === "all") return "opacity-100";
-              if (speaker === "both") return "opacity-100 ring-2 ring-amber-500/50 bg-amber-900/10 p-4 md:p-6 rounded-2xl";
-              if (role === speaker) return "opacity-100 scale-[1.02] transform transition-all";
-              return "opacity-30 grayscale blur-[0.5px] pointer-events-none"; 
-          };
-
-          const getSpeakerLabel = (speaker) => {
-              if (speaker === "male") return <span className="text-cyan-400 font-bold bg-cyan-900/30 px-4 py-2 rounded-full text-base md:text-xl lg:text-2xl">MC {formData.mcMaleNickname}</span>;
-              if (speaker === "female") return <span className="text-pink-400 font-bold bg-pink-900/30 px-4 py-2 rounded-full text-base md:text-xl lg:text-2xl">MC {formData.mcFemaleNickname}</span>;
-              if (speaker === "both") return <span className="text-amber-400 font-bold bg-amber-900/30 px-4 py-2 rounded-full text-base md:text-xl lg:text-2xl">พูดพร้อมกัน</span>;
-          }
-
           return (
             <div className="min-h-screen flex flex-col md:flex-row">
               {/* Sidebar */}
               <div className="w-full md:w-1/4 bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 p-6 flex flex-col z-20">
-                <div className="mb-6 flex justify-between items-start">
+                <div className="mb-8 flex justify-between items-start">
                   <div>
                     <h1 className="text-2xl md:text-3xl font-bold text-amber-500 tracking-wider">ttb reserve</h1>
-                    <p className="text-sm text-slate-400 mt-1 uppercase tracking-widest">Dual MC Teleprompter</p>
+                    <p className="text-sm text-slate-400 mt-1 uppercase tracking-widest">MC Teleprompter</p>
                   </div>
                   <button onClick={() => setAppMode('setup')} className="bg-slate-800 p-3 rounded-lg text-slate-400 hover:text-white" title="กลับไปแก้รายชื่อ">
                       <Settings size={24} />
                   </button>
-                </div>
-
-                {/* Role Selector */}
-                <div className="mb-8 bg-slate-950 p-3 rounded-xl border border-slate-800">
-                    <p className="text-sm text-slate-500 text-center mb-3 font-semibold tracking-wider">เลือกบทบาท (SELECT ROLE)</p>
-                    <div className="flex flex-col gap-3">
-                        <button onClick={() => setRole('male')} className={`py-3 px-4 rounded-lg text-base md:text-lg font-bold transition-all ${role === 'male' ? 'bg-cyan-600 text-white shadow-lg shadow-cyan-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>
-                            🎙️ {formData.mcMaleNickname} (ชาย)
-                        </button>
-                        <button onClick={() => setRole('female')} className={`py-3 px-4 rounded-lg text-base md:text-lg font-bold transition-all ${role === 'female' ? 'bg-pink-600 text-white shadow-lg shadow-pink-900/50' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>
-                            🎙️ {formData.mcFemaleNickname} (หญิง)
-                        </button>
-                        <button onClick={() => setRole('all')} className={`py-3 px-4 rounded-lg text-base md:text-lg font-bold transition-all ${role === 'all' ? 'bg-amber-600 text-white' : 'bg-slate-800 text-slate-400 hover:bg-slate-700'}`}>
-                            👁️ ดูสคริปต์ทั้งหมด
-                        </button>
-                    </div>
                 </div>
 
                 <div className="flex-grow hidden md:block overflow-y-auto">
@@ -438,10 +381,9 @@
 
                     <div className="space-y-12">
                       {currentScript.dialogues.map((dialogue, idx) => (
-                        <div key={idx} className={`flex flex-col gap-4 transition-all duration-500 ${getDialogStyle(dialogue.speaker)}`}>
-                          <div>{getSpeakerLabel(dialogue.speaker)}</div>
-                          <div className="flex gap-4 items-start pl-4 border-l-4 border-slate-800 ml-4 md:ml-6">
-                            <Mic className={`shrink-0 mt-2 opacity-40 ${dialogue.speaker === 'male' ? 'text-cyan-500' : dialogue.speaker === 'female' ? 'text-pink-500' : 'text-amber-500'}`} size={36} />
+                        <div key={idx} className="flex flex-col gap-4">
+                          <div className="flex gap-4 items-start">
+                            <Mic className="text-cyan-500 shrink-0 mt-2 opacity-50" size={36} />
                             <p className="text-3xl md:text-4xl lg:text-5xl text-white leading-[1.6] md:leading-[1.7] lg:leading-[1.8] font-light tracking-wide">
                                 {parseHighlightText(dialogue.text)}
                             </p>
@@ -484,7 +426,3 @@
     </script>
 </body>
 </html>
-
-
-
-
